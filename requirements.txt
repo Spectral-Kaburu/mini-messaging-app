@@ -1,6 +1,7 @@
-pip install flask flask-socketio flask-sqlalchemy eventlet
+pip install flask flask-socketio flask-sqlalchemy eventlet bcrypt
 
 {
+    bcrypt==5.0.0
     bidict==0.23.1
     blinker==1.9.0
     click==8.3.1
