@@ -18,7 +18,7 @@
             const ctx = canvas.getContext("2d");
 
             canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight+153; // to cover fullscreen too, figure out a less "juakali" way
+            canvas.height = window.innerHeight; // to cover fullscreen too, figure out a less "juakali" way
 
             const letters = "WelcomeToChatApp";
             const fontSize = 16;
@@ -26,17 +26,17 @@
             const drops = Array(Math.floor(columns)).fill(1);
 
             function draw() {
-            ctx.fillStyle = "rgba(0,0,0,0.05)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "rgba(0,0,0,0.05)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = "#F00";
-            ctx.font = fontSize + "px monospace";
+                ctx.fillStyle = "#F00";
+                ctx.font = fontSize + "px monospace";
 
-            drops.forEach((y, i) => {
-                const text = letters[Math.floor(Math.random() * letters.length)];
-                ctx.fillText(text, i * fontSize, y * fontSize);
-                drops[i] = y * fontSize > canvas.height + 10 && Math.random() > 0.975 ? 0 : y + 0.5;
-            });
+                drops.forEach((y, i) => {
+                    const text = letters[Math.floor(Math.random() * letters.length)];
+                    ctx.fillText(text, i * fontSize, y * fontSize);
+                    drops[i] = y * fontSize > canvas.height + 10 && Math.random() > 0.975 ? 0 : y + 0.5;
+                });
             }
 
             setInterval(draw, 33);
