@@ -8,6 +8,18 @@ body {
     align-items: center;
 }
 
+input {
+    height: 20px;        /* makes it tall like textarea */
+    padding: 12px 12px 12px;
+    border-radius: 5px;
+    font-size: 15px;
+    background: rgba(0, 0, 0, 0);
+    color: #39ff14;
+    border: 1px solid rgba(57, 255, 20, 0.3);
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
 #matrix {
   position: fixed;
   top: 0;
@@ -23,9 +35,10 @@ button {
 }
 
 textarea {
+    height: 20px;        /* makes it tall like textarea */
+    padding: 12px;
     border-radius: 5px;
     font-size: 15px;
-    padding: 10px;
     background: rgba(0, 0, 0, 0);
     color: #39ff14;
     border: 1px solid rgba(57, 255, 20, 0.3);

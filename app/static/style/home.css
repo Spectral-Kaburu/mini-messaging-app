@@ -3,7 +3,7 @@
     font-size: 20px;
     border-radius: 10px;
     border: 1px solid lime;
-    box-shadow: 0 0 20px 5px rgba(0, 255, 0, 0.736);
+    box-shadow: 0 0 20px 5px rgba(0, 255, 0, 0.668);
     padding: 20px;
     background: rgba(0,0,0,0.45);   /* gives the semi-transparent feel */
     display: flex;
@@ -14,9 +14,9 @@
 }
 
 .join {
-    display: flex;
-    padding: 10px;
-    flex-direction:row;
+    display:contents;
+    padding: 12px;
+    flex-direction:column;
 }
 
 #error {
@@ -24,5 +24,9 @@
 }
 
 #note {
-    color: #00b600
+    color: #00b600;
+}
+
+a {
+    color: #ff0000ba;
 }
