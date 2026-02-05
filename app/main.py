@@ -1,12 +1,15 @@
 from flask import Flask, request, render_template, redirect, session, url_for
+from .routes.auth import auth
 from flask_socketio import join_room, leave_room, send, SocketIO
 from string import ascii_uppercase
 import random
 import datetime
+import uuid # for generating uuids to serve to db
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "messaging_app"
 socketio = SocketIO(app)
+app.register_blueprint(auth)
 
 rooms = {}  # keep track of generated rooms 
 users = {}  # keep track of users session id
@@ -22,9 +25,9 @@ def gen_room(length):
     return code
 
 
-@app.route("/", methods=["POST", "GET"])
+@app.route("/jokes/home", methods=["POST", "GET"])
 def home():
-    session.clear() # to "allow" users to join other chat rooms
+    # session.clear() # to "allow" users to join other chat rooms
     if request.method == "POST":
         name = request.form.get("username") # if 'name' not found null is returned
         code = request.form.get("code")
@@ -55,6 +58,19 @@ def home():
         return redirect(url_for("room"))
     
     return render_template("home.html", note="Register for a chat room using your username.")
+
+
+@app.route("/", methods=["GET"])
+def dashboard():
+    username = session.get("user.name")
+    uid = session.get("user.id")
+
+    print
+    if not username:
+        return redirect(url_for("auth.login")) # U need to reference the name of the file for the path to be built
+    
+    return render_template("room.html", room=uid, name=username)
+
 
 
 @app.route("/room", methods=["GET", "POST"])
