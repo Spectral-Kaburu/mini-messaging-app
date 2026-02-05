@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block link %}
+<link rel="stylesheet" href="{{url_for('static', filename='style/home.css')}}">
+{% endblock %}
+{% block content %}
+<form method="post" class="welcome">
+    <h2><strong>{{ mode }}</strong></h2>
+
+    <div class="join"> <!-- I'm yet to figure out how to make it all look uniform-->
+        <textarea name="username" placeholder="Enter a username..." value="{{username}}"></textarea>
+    </div>
+
+    <div class="join"> <!-- I'm yet to figure out how to make it all look uniform-->
+        <input type="password" name="password" placeholder="Enter your password..." id="password">
+        <button type="submit" name="create">{{ mode }}</button>
+    </div>
+
+    <ul>
+        {% if mode == "Login" %}
+            <a href="/auth/register">Don't have an account?</a>
+        {% else %}
+            <a href="/auth/login">Have an account already?</a>
+        {% endif %}
+    </ul>
+    {% if note %}
+    <ul>
+        <li id="note">{{note}}</li>
+    </ul>
+    {% endif %}
+    {% if error %}
+    <ul>
+        <li id="error">{{error}}</li>
+    </ul>
+    {% endif %}
+
+</form>
+{% endblock %}
