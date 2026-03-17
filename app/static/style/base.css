@@ -1,11 +1,15 @@
 body {
+    margin: 0;                    /* almost always a good idea */
+    padding: 0;
+    font-family: monospace;
     color: lime;
-    background: rgba(0,0,0,0);
+    background: black;            /* changed from transparent → looks better with matrix rain */
+    min-height: 100vh;            /* better than height: 100vh in most cases */
+    height: 100vh;                /* ok if you really want exact viewport height */
     display: flex;
-    justify-content: center;
-    height: 100vh;
-    overflow: hidden; /* no scrolling */
-    align-items: center;
+    justify-content: center;      /* ← horizontal centering */
+    align-items: center;          /* ← vertical centering */
+    overflow: hidden;             /* prevents scrollbars from matrix rain or other overflow */
 }
 
 input {
