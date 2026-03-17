@@ -1,0 +1,14 @@
+.form-box {
+    padding: 0% 30px 0% 30px;
+    font-size: 20px;
+    border-radius: 10px;
+    border: 1px solid lime;
+    box-shadow: 0 0 20px 5px rgba(0, 255, 0, 0.736);
+    background: rgba(0,0,0,0.45);
+    color: lime;
+    min-height: 60vh;
+    height: 90%;
+    min-width: 50vw;
+    max-width: 460px;
+    -webkit-overflow-scrolling: touch;
+}

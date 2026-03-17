@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block link %}
+<link rel="stylesheet" href="{{url_for('static', filename='style/dashboard.css')}}">
+{% endblock %}
+{% block content %}
+<div class="form-box">
+    <h2><strong>Enter Chat Room</strong></h2>
+    {% if conversations %}
+    {% for conversation in conversations %}
+    <ul>
+        <li id="chats"><a href="/chat/{{ conversation.id }}">{{ conversation.name }}</a></li>
+    </ul>
+    {% endfor %}
+    {% endif %}
+
+</div>
+{% endblock %}
