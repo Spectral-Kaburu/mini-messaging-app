@@ -1,166 +1,100 @@
-from flask import Flask, request, render_template, redirect, session, url_for
 from .routes.auth import auth
-from flask_socketio import join_room, leave_room, send, SocketIO
-from string import ascii_uppercase
-import random
+from .routes.database import send_msg, get_mesgs
+from .routes.dashboard import dashboard
+#from .routes.conversations import conversations
+from .helpers.general import Colors
+from flask_socketio import SocketIO, join_room, leave_room, send
+from flask import Flask, session, render_template
+from http.client import HTTPException
+import uuid
 import datetime
-import uuid # for generating uuids to serve to db
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "messaging_app"
 socketio = SocketIO(app)
 app.register_blueprint(auth)
+app.register_blueprint(dashboard)
+#app.register_blueprint(conversations)
 
-rooms = {}  # keep track of generated rooms 
-users = {}  # keep track of users session id
+# Custom 404 handler
+@app.errorhandler(404)
+def page_not_found(e):
+    print(Colors.RED+f"{e}")
+    return render_template('404.html'), 404
 
-# generate room codes
-def gen_room(length):
-    code = ""
-    while True:
-        for _ in range(length):
-            code += random.choice(ascii_uppercase)
-        if code not in rooms:
-            break 
-    return code
+# Custom 500 handler (and other 5xx errors)
+@app.errorhandler(500)
+def internal_server_error(e):
+    print(Colors.RED+f"{e}")
+    return render_template('500.html'), 500
 
+# Optional: Catch-all for other HTTP errors (400, 403, 429, etc.)
+@app.errorhandler(Exception)
+def handle_exception(e):
+    print(Colors.RED+f"{e}")
+    # Only handle HTTP exceptions here (avoid catching programming errors twice)
+    if isinstance(e, HTTPException):
+        code = e.code if hasattr(e, 'code') else 500
+        return render_template('500.html'), code  # or a generic error template
+    # Let other exceptions bubble up (for debugging / logging middleware)
+    raise
 
-@app.route("/jokes/home", methods=["POST", "GET"])
-def home():
-    # session.clear() # to "allow" users to join other chat rooms
-    if request.method == "POST":
-        name = request.form.get("username") # if 'name' not found null is returned
-        code = request.form.get("code")
-        join = request.form.get("join", False) # if 'join' not found False is returned
-        create = request.form.get("create", False)
+print(Colors.BLUE+"Initialization process complete!")
 
-        if not name:
-            return render_template("home.html", error="Please enter a username", code=code)
-        
-        if join != False and not code:
-            return render_template("home.html", error="Please enter a room code.", username=name)
-        
-        room = code
-        print(code)
-        if create != False:
-            print("Creating room....")
-            room = gen_room(4)
-            print('Chat room:', room, "created!!")
-            rooms[room] = {'members': 0, 'messages': []}
-        elif join != False: 
-            if room not in rooms:
-                return render_template("home.html", error="Room doesn't exist, pleae enter valid room ID.", code=code, username=name)
-        
-        print(rooms)
-        session['room'] = room
-        session['name'] = name
-
-        return redirect(url_for("room"))
-    
-    return render_template("home.html", note="Register for a chat room using your username.")
-
-
-@app.route("/", methods=["GET"])
-def dashboard():
-    username = session.get("user.name")
-    uid = session.get("user.id")
-
-    print
-    if not username:
-        return redirect(url_for("auth.login")) # U need to reference the name of the file for the path to be built
-    
-    return render_template("room.html", room=uid, name=username)
-
-
-
-@app.route("/room", methods=["GET", "POST"])
-def room():
-    room = session.get("room")
-    name = session.get("name")
-    if room is None or name is None or room not in rooms:
-        print(room, "\n", name, "\n", rooms)
-        return redirect(url_for("home"))    # use redirect(url_for()) - for easy code maintenance i.e if U want to change the url for home to "/home"
-    
-    return render_template("room.html", room=room, name=name)
-
+def sanitize(mesg:str, chat_id:str, user_id:str)->dict:
+    msg_id = str(uuid.uuid4())
+    message = {
+        "msg_id": msg_id,
+        "chat_id": chat_id,
+        "content": mesg,
+        "sender_id": user_id,
+    }
+    return message
 
 @socketio.on("message")
-def message(data):
-    name = session.get("name")
-    chat = session.get("room")
-    msg = data["data"]
-    content = {
-        "name": name,
-        "message": msg,
-        "time": data["time"]
-    }
-    send(content, to=chat)
-    print()
-    print(name, "\n", msg, "\n", data["time"])
-
-    rooms[chat]["messages"].append(content)
+def message(msg):
+    chat_id = session.get("conversation.id")
+    user_id = session.get("user.id")
+    message = sanitize(msg, chat_id, user_id)
+    send(message, to=chat_id)
+    try:
+        send_msg(message)
+    except Exception:
+        print(Colors.RED+"Inserting message into database failed!!")
 
 
 @socketio.on("connect")
 def connect(auth=None): # auth is required even if it's None
-    chat = session.get("room")  # naming conflict :=(
-    name = session.get("name")
-    sid = request.sid
-
-    if not name or not chat:
+    user_id = session.get("user.id")
+    chat_id = session.get("conversation.id")
+    username = session.get("user.name")
+    if user_id is None:
         return
-    if chat not in rooms:
-        print(f"{chat} room is nonexistent on this end. Disconnecting...")
-        return False
-    
-    join_room(chat)
-    time = datetime.datetime.hour # essentially very useless, but acts as a placholder and avoids errors, should def change this
-    content = {
-        "name" : name,
-        "message" : "has joined chat room.",
-        "time" : str(time)
-    }
+    print(Colors.BLUE+f"{user_id} joining conversation {chat_id}...")
+    join_room(chat_id)
 
-    send(content, to=chat)
-    users[name] = sid
-    rooms[chat]["members"] += 1 # add now because now is when user joined room
-    if rooms[chat]["messages"]:
-        messages = []
-        for msg in rooms[chat]["messages"]:
-            """
-            
-                "name": rooms[chat]["messages"]["name"],
-                "message": rooms[chat]["messages"]["message"],
-                "time": rooms[chat]["messages"]["time"]
-            }"""
-            send(msg, to=sid)
-            messages.append(msg)
-        print("\n", f"Messages: {messages}")
-        # send(messages, to=sid)
-    print(f"\n{name} joined room {chat} sucessfully!!") 
-    print(rooms)
+    messages = get_mesgs(chat_id)
+    for msg in messages:
+        send(msg, to=chat_id)
+        print("\n", Colors.BLUE + f"Messages for {chat_id} sent to {username}.\n")
+    print(Colors.BLUE + f"{user_id} joined conversation {chat_id} sucessfully!!") 
 
 @socketio.on("disconnect")
 def disconnect():
-    print("Disconnecting...")
-    chat = session.get("room")
-    name = session.get("name")
-    leave_room(room=chat)
+    chat_id = session.get("conversation.id")
+    username = session.get("user.name")
+    print(Colors.YELLOW + "Disconnecting...")
+    leave_room(room=chat_id)
 
-    if chat in rooms:
-        rooms[chat]["members"] -= 1
-        if rooms[chat]["members"] <= 0:
-            del rooms[chat]
-
-    time = datetime.datetime.now()
+    time = datetime.now()
     content = {
-        "name" : name,
+        "name" : username,
         "message" : "has left room.",
         "time" : str(time)
     }
-    send(content, to=chat)
-    print(f"\n{name} left chat room: {chat}.")
-    
+    send(content, to=chat_id)
+    print(Colors.YELLOW + f"{username} left conversation {chat_id} successfully.")
+
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)

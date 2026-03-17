@@ -26,7 +26,6 @@ const sendMessage = () => {
     const message = document.getElementById("message");
     if (message.value == "") return;
     console.log(message.value)
-    const timestamp = new Date().toLocaleString()
-    socketio.emit("message", {name: USERNAME, data: message.value, time: timestamp});
+    socketio.emit("message", message.value);
     message.value = "";
 };
