@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template, redirect, session, url_for
-from .database import fetch_user_by_name, create_user
+from .database import fetch_user_by_name, create_user, check_pass_by_name
 import bcrypt
 import uuid
 
@@ -18,21 +18,16 @@ def login():
         if not password:
             return render_template("auth.html", error="You did not key in your password", mode="Login")
         
-        user:tuple = fetch_user_by_name(name)
+        try:
+            hashpw = str(bcrypt.hashpw(password, 10))
+            user:tuple = check_pass_by_name(hashpw, name)
+            if user:
+                session["user.id"] = user[0]
+                session["user.name"] = user[1]
 
-        if not user:
-            return render_template("auth.html", error="Invalid User! Check your username.", mode="Login")
-                
-        """if not bcrypt.checkpw(password, user[2]):
-            return render_template("auth.html", error="You did not key in the right password", mode="Login")""" # uncomment after building the register func
-        
-        if password != user[2]:
-            return render_template("auth.html", error="You did not key in the right password", mode="Login")
-        
-        session["user.id"] = user[0]
-        session["user.name"] = user[1]
-
-        return redirect(url_for("dashboard")) # using room UI for now, dashboard UI coming up soon
+                return redirect(url_for("dashboard")) # using room UI for now, dashboard UI coming up soon
+        except Exception:
+            return render_template("auth.html", error="Invalid Login credentials!!!", mode="Login")
     
     return render_template("auth.html", note="Register for a chat room using your username.", mode="Login")
 
