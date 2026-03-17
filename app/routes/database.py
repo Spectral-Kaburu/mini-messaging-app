@@ -1,8 +1,16 @@
 # I'll put all database queries in here
+from ..helpers.general import Colors
 import sqlite3
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+DB = os.getenv("DB")
+
+print(Colors.BLUE+"Database in use: "+Colors.GREEN+f"{DB}.")
 
 def getconn(): # get connection to db
-    return sqlite3.connect("test2.db") # 
+    return sqlite3.connect(DB) # 
 """ Turns out cx.execute and cu.execute are pretty much the same thing, apart from the fact that cu allows for more complex queries involving fetchone-many-all, that cx just can't handle"""
 
 ## AUTH
@@ -47,13 +55,13 @@ def get_chats(user_id:str) -> list:
 def fetch_one_mesg(mesg_id, chat_id):
     with getconn() as cx:
         cu = cx.cursor()
-        cu.execute("SELECT * from messages WHERE id=(?) AND chat_id=(?)", (mesg_id, chat_id))
+        cu.execute("SELECT * FROM messages WHERE id=(?) AND chat_id=(?)", (mesg_id, chat_id))
         return cu.fetchone()
 
 def get_mesgs(chat_id:str) -> list:
     with getconn() as cx:
         cu = cx.cursor()
-        cu.execute("SELECT * fFROM messages WHERE chat_id=(?)", (chat_id,))
+        cu.execute("SELECT * FROM messages WHERE chat_id=(?)", (chat_id,))
         return cu.fetchall()
 
 def send_msg(msg_id:str, chat_id:str, content:str, sender_id:str) -> tuple:

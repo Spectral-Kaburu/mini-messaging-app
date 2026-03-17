@@ -1,6 +1,11 @@
 import sqlite3
+from dotenv import load_dotenv
+import os
 
-cx = sqlite3.connect("test1.db")
+load_dotenv()
+DB = os.getenv("DB")
+
+cx = sqlite3.connect(DB)
 cu = cx.cursor()
 
 cu.execute("PRAGMA foreign_keys = ON;")
