@@ -25,7 +25,7 @@ def login():
                 session["user.id"] = user[0]
                 session["user.name"] = user[1]
 
-                return redirect(url_for("dashboard")) # using room UI for now, dashboard UI coming up soon
+                return redirect(url_for("chat_base")) # using room UI for now, dashboard UI coming up soon
         except Exception:
             return render_template("auth.html", error="Invalid Login credentials!!!", mode="Login")
     
@@ -47,7 +47,7 @@ def register():
         try:
             check = fetch_user_by_name(name)
             if check:
-                return render_template("auth.html", error="Maybe try logging in!!!", mode="Register")
+                return render_template("auth.html", error="Username already in use!!!", mode="Register")
         except Exception:
 
             hashpw = bcrypt.hashpw(password, 10)
@@ -58,6 +58,6 @@ def register():
             session["user.id"] = user[0]
             session["user.name"] = user[1]
 
-            return redirect(url_for("dashboard")) # using room UI for now, dashboard UI coming up soon
+            return redirect(url_for("chat_base")) # using room UI for now, dashboard UI coming up soon
     
     return render_template("auth.html", note="Register for a chat room using your username.", mode="Register")
