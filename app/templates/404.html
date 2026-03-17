@@ -1,0 +1,17 @@
+{% extends "base.html" %}  <!-- or whatever your base layout is -->
+
+{% block content %}
+<div class="error-box">
+    <h1 style="font-size: 5rem; margin: 0;">404</h1>
+    <p style="font-size: 1.8rem; margin: 1.5rem 0;"><strong>Page not found!</strong></p>
+    <p><strong>You took a wrong turn at the matix!!!</strong></p>
+    <p>The requested URL was not found on the server. If you entered the URL manually please check for typos.</p>
+    
+    <a href="{{ url_for('dashboard.chat_base') }}"
+       style="display: inline-block; margin-top: 2rem; padding: 0.8rem 1.8rem; 
+              background: rgba(0,255,0,0.2); border: 1px solid lime; 
+              border-radius: 8px; color: lime; text-decoration: none;">
+        Back to Home
+    </a>
+</div>
+{% endblock %}

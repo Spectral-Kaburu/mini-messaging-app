@@ -49,3 +49,19 @@ textarea {
     overflow-y: auto;
     overflow-x: auto;
 }
+
+/* Error Pages */
+.error-box {
+    font-size: 20px;
+    border-radius: 10px;
+    border: 1px solid lime;
+    box-shadow: 0 0 20px 5px rgba(0, 255, 0, 0.668);
+    padding: 20px;
+    background: rgba(0,0,0,0.45);   /* gives the semi-transparent feel */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-width: 20vw;
+}
