@@ -17,5 +17,4 @@ def hash_passwords(password:str)->bytes:
 
 def check_pass(password:str, hashed_pw:bytes)->bool:
     enc_pass = password.encode("utf-8")
-    print(Colors.RED+f"{type(hashed_pw)}")
     return bcrypt.checkpw(enc_pass, hashed_pw)
